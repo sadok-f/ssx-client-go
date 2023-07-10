@@ -2,12 +2,9 @@
 generate: generate-rest-api-client
 
 tools:
-	go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.12
+	go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.13
 
 generate-rest-api-client: tools
-	oapi-codegen -old-config-style -generate types,client -package sx-client-go -o ssx-client.gen.go swagger-api.yaml
+	oapi-codegen -old-config-style -generate types,client -package ssxclientgo -o ssx-client.gen.go swagger-api.yaml
 
-build: generate
-	go build ./...
-
-.PHONY: tools generate generate-rest-api-client build
+.PHONY: tools generate generate-rest-api-client
