@@ -1,0 +1,431 @@
+openapi: 3.0.3
+info:
+  title: Swagger Petstore - OpenAPI 3.0
+  description: |-
+    This is SearchStax Cloud API based on the OpenAPI 3.0 specification.  You can find out more about
+    SearchStax Cloud APIs Overview at [https://www.searchstax.com/docs/searchstax-cloud-apis-overview/](https://www.searchstax.com/docs/searchstax-cloud-apis-overview/).
+  termsOfService: https://www.searchstax.com/legal/terms/
+  contact:
+    email: apiteam@searchstax.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+servers:
+  - url: https://app.searchstax.com/api/rest/v2
+tags:
+  - name: token
+    description: Token Authentication
+  - name: deployment
+    description: SearchStax provides an API supporting the creation, deletion and management of SearchStax Cloud deployments.
+  - name: user
+    description: Operations about user
+paths:
+  /obtain-auth-token:
+    post:
+      tags:
+        - token
+      summary: Obtain an authentication token
+      description: Generates an authentication token for the user of a tenant account.
+      operationId: generateNewToken
+      parameters:
+        - name: username
+          in: query
+          description: This is the email address used when you log into the SearchStax server.
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: This is the password associated with that username.
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: tfa_token
+          in: query
+          description: This is a six-digit code supplied by the Google Authenticator to enable two-factor authentication. Each code is good for one minute, so move fast. <br>
+            The eight-character backup codes work with no time limit, but only once each.<br>
+            If TFA is not enabled for this user account, this token is ignored.
+          required: false
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/AuthTokenResponse'
+        '400':
+          description: Unable to log in with provided credentials.
+
+  /{account_name}/deployment:
+    post:
+      tags:
+        - deployment
+      summary: Create new Deployment
+      description: This method lets you create a new deployment. Note that a successful response indicates only that deployment creation was authorized and has begun. It can take up to an hour to bring a new deployment on line depending on the cloud provider.
+      operationId: createNewDeployment
+      parameters:
+        - "$ref": "#/components/parameters/Authorization-token"
+        - name: account_name
+          in: path
+          description: The name of the new deployment
+          required: true
+          explode: true
+          schema:
+            type: string
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/DeploymentCreateRequest"
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentCreateResponse'          
+        '400':
+          description: Invalid status value
+    get:
+      tags:
+          - deployment
+      summary: List the deployments of an account
+      description: This method lists the deployments of an account along with their deployment details
+      operationId: getDeploymentsList
+      parameters:
+        - "$ref": "#/components/parameters/Authorization-token"
+        - name: account_name
+          in: path
+          description: The name of the new deployment
+          required: true
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeploymentListResponse' 
+                  
+  /{account_name}/deployment/{uid}:
+    delete:
+      tags:
+          - deployment
+      summary: This method deletes a deployment from the tenant account
+      description: Note that a successful response means only that the deletion process was authorized and has begun. It can take up to an hour to delete a deployment depending on the cloud provider.
+      operationId: deleteDeployment
+      parameters:
+        - "$ref": "#/components/parameters/Authorization-token"
+        - name: account_name
+          in: path
+          description: The name of the new deployment
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: uid
+          in: path
+          description: The ID of the deployment
+          required: true
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeploymentDeleteResponse'
+
+components:
+  schemas:
+    DeploymentCreateRequest:
+      type: object
+      required:
+        - name
+        - application
+        - application_version
+        - termination_lock
+        - plan_type
+        - plan
+        - region_id
+        - cloud_provider_id
+      properties:
+        name: 
+          type: string
+          example: SolrFromAPI
+        application: 
+          type: string
+          example: Solr
+        application_version: 
+          type: string
+          example: 7.3.1
+        termination_lock: 
+          type: boolean
+        plan_type: 
+          type: string
+          example: DedicatedDeployment
+        plan: 
+          type: string
+          example: NDN1-AWS-S
+        region_id: 
+          type: string
+          example: ap-northeast-1
+        cloud_provider_id: 
+          type: string
+          example: aws
+        num_additional_app_nodes: 
+          type: integer
+          format: int32
+          example: 0
+        private_vpc: 
+          type: string
+          example: 2
+
+    DeploymentCreateResponse:
+      type: object
+      required:
+        - name
+        - application
+        - application_version
+        - termination_lock
+        - plan_type
+        - plan
+        - region_id
+        - cloud_provider_id
+      properties:
+        name: 
+          type: string
+          example: SolrFromAPI
+        application: 
+          type: string
+          example: Solr
+        application_version: 
+          type: string
+          example: 7.3.1
+        termination_lock: 
+          type: boolean
+        plan_type: 
+          type: string
+          example: DedicatedDeployment
+        plan: 
+          type: string
+          example: NDN1-AWS-S
+        region_id: 
+          type: string
+          example: ap-northeast-1
+        cloud_provider_id: 
+          type: string
+          enum: [aws, azure, gcp]
+          example: aws
+        num_additional_app_nodes: 
+          type: integer
+          format: int32
+          example: 0
+        private_vpc: 
+          type: integer
+          format: int32
+          example: 2
+          
+    DeploymentListResponse:
+      type: object
+      properties:
+        count: 
+          type: integer
+          format: int32
+          example: 3
+        next: 
+          type: string
+          format: nullable
+        previous: 
+          type: string
+          format: nullable
+        results: 
+          type: array
+          items: 
+            type: object
+            properties: 
+              name: 
+                type: string
+                example: ListByAPI
+              uid: 
+                type: string
+                example: ss123456
+              application: 
+                type: string
+                example: Solr
+              application_version: 
+                type: string
+                example: 8.11.2
+              tier: 
+                type: string
+                example: Gold
+              http_endpoint: 
+                type: string
+                example: https://ss123456-7hp6b4y0-us-west-1-aws.searchstax.com/solr/
+              status: 
+                type: string
+                example: Configuring Deployment
+              provision_state: 
+                type: string
+                example: Pending
+              termination_lock: 
+                type: boolean
+              plan_type: 
+                type: string
+                example: DedicatedDeployment
+              plan: 
+                type: string
+                example: NDC128-AWS-G
+              is_master_slave: 
+                type: boolean
+              vpc_type: 
+                type: string
+                example: Public
+              vpc_name: 
+                type: string
+                example: 
+              region_id: 
+                type: string
+                example: us-west-1
+              cloud_provider: 
+                type: string
+                example: Amazon Web Services
+              cloud_provider_id: 
+                type: string
+                example: aws
+              num_additional_app_nodes: 
+                type: integer
+                format: int32
+                example: 0
+              deployment_type: 
+                type: string
+                example: Dedicated Cluster
+              num_nodes_default: 
+                type: integer
+                format: int32
+                example: 2
+              num_zookeeper_nodes_default: 
+                type: integer
+                format: int32
+                example: 3
+              num_additional_zookeeper_nodes: 
+                type: integer
+                format: int32
+                example: 0
+              servers: 
+                type: string
+                example: ss123456-5 ss123456-4 ss123456-3 ss123456-2 ss123456-1
+              zookeeper_ensemble: 
+                type: string
+                example: ss123456-7hp6b4y0-1-us-west-1-aws.searchstax.com:2181,ss123456-7hp6b4y0-2-us-west-1-aws.rchstax.com:2181
+              tag: 
+                type: string
+                example: 
+              specifications: 
+                type: string
+                example: disk_space=; physical_memory=; jvm_heap_memory=
+              backups_enabled: 
+                type: boolean
+              dr_enabled: 
+                type: boolean
+              sla_active: 
+                type: boolean
+              state_changed: 
+                type: string
+                format: nullable
+              term_end: 
+                type: string
+                format: nullable
+              date_created: 
+                type: string
+                format: date
+                example: 2023-01-25
+              application_nodes_count: 
+                type: integer
+                format: int32
+                example: 2
+              selected_node_count: 
+                type: integer
+                format: int32
+                example: 0
+              savings: 
+                type: string
+                example: one_year_saving_perc=0.00; three_year_saving_perc=15.00
+              dr_plan_type: 
+                type: string
+                format: nullable
+              subscription: 
+                type: string
+                example: yearly
+              security_pack: 
+                type: boolean
+              desired_tier: 
+                type: string
+                example: gold
+              backup: 
+                type: string
+                format: nullable
+              onboarding: 
+                type: boolean
+              selected_plan_memory: 
+                type: integer
+                format: int32
+                example: 0
+              selected_plan_storage: 
+                type: integer
+                format: int32
+                example: 0
+              dr: 
+                type: string
+                format: nullable
+              payment_method: 
+                type: string
+                format: nullable
+              purchase_order: 
+                type: string
+                format: nullable
+    DeploymentDeleteResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Successfully deleted ss123456
+
+    AuthTokenResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: aa70cb0a180a0532ae8855f7a1712eeceb81e080
+      
+  parameters:
+    Authorization-token:
+      name: "Authorization: Token"
+      in: header
+      required: true
+      description: The token returned from the authorization endpoint. Use this token
+        in each request.
+      schema:
+        type: string
+  
