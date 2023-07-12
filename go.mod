@@ -1,6 +1,6 @@
 module github.com/sadok-f/ssx-client-go/v1
 
-go 1.20
+go 1.19
 
 require github.com/deepmap/oapi-codegen v1.13.0
 
