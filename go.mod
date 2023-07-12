@@ -1,4 +1,4 @@
-module github.com/sadok-f/ssx-client-go/v1
+module github.com/sadok-f/ssx-client-go
 
 go 1.19
 
