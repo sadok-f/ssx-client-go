@@ -7,4 +7,6 @@ tools:
 generate-rest-api-client: tools
 	oapi-codegen -old-config-style -generate types,client -package ssxclientapi -o ssx-client-api/ssx-client-api.gen.go swagger-api.yaml
 
-.PHONY: tools generate generate-rest-api-client
+build: generate
+	go build ./...
+.PHONY: tools generate generate-rest-api-client build
